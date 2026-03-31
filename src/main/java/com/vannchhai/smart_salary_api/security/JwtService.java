@@ -32,36 +32,55 @@ public class JwtService {
 
   @PostConstruct
   public void initKeys() throws Exception {
+    String privateKeyStr = System.getenv("JWT_PRIVATE_KEY");
+    String publicKeyStr = System.getenv("JWT_PUBLIC_KEY");
 
-    URL privateKeyUrl = getClass().getResource("/keys/private.pem");
+    if (privateKeyStr != null
+        && publicKeyStr != null
+        && !privateKeyStr.isBlank()
+        && !publicKeyStr.isBlank()) {
+      this.privateKey = loadPrivateKeyFromString(privateKeyStr);
+      this.publicKey = loadPublicKeyFromString(publicKeyStr);
+    } else {
+      this.privateKey = loadPrivateKeyFromResource("/keys/private.pem");
+      this.publicKey = loadPublicKeyFromResource("/keys/public.pem");
+    }
+  }
+
+  private PrivateKey loadPrivateKeyFromString(String key) throws Exception {
+    String privateKeyPEM =
+        key.replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .replaceAll("\\s", "");
+    byte[] decoded = Base64.getDecoder().decode(privateKeyPEM);
+    return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(decoded));
+  }
+
+  private PublicKey loadPublicKeyFromString(String key) throws Exception {
+    String publicKeyPEM =
+        key.replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "")
+            .replaceAll("\\s", "");
+    byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
+    return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(decoded));
+  }
+
+  private PrivateKey loadPrivateKeyFromResource(String path) throws Exception {
+    URL privateKeyUrl = getClass().getResource(path);
     if (privateKeyUrl == null) {
       throw new IllegalStateException("Private key file missing in resources/keys/");
     }
+    String key = Files.readString(Path.of(privateKeyUrl.toURI()), StandardCharsets.UTF_8);
+    return loadPrivateKeyFromString(key);
+  }
 
-    String privateKeyContent =
-        Files.readString(Path.of(privateKeyUrl.toURI()), StandardCharsets.UTF_8)
-            .replace("-----BEGIN PRIVATE KEY-----", "")
-            .replace("-----END PRIVATE KEY-----", "")
-            .replaceAll("\\s", "");
-
-    PKCS8EncodedKeySpec privateSpec =
-        new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent));
-    this.privateKey = KeyFactory.getInstance("RSA").generatePrivate(privateSpec);
-
-    URL publicKeyUrl = getClass().getResource("/keys/public.pem");
+  private PublicKey loadPublicKeyFromResource(String path) throws Exception {
+    URL publicKeyUrl = getClass().getResource(path);
     if (publicKeyUrl == null) {
       throw new IllegalStateException("Public key file missing in resources/keys/");
     }
-
-    String publicKeyContent =
-        Files.readString(Path.of(publicKeyUrl.toURI()), StandardCharsets.UTF_8)
-            .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "")
-            .replaceAll("\\s", "");
-
-    X509EncodedKeySpec publicSpec =
-        new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyContent));
-    this.publicKey = KeyFactory.getInstance("RSA").generatePublic(publicSpec);
+    String key = Files.readString(Path.of(publicKeyUrl.toURI()), StandardCharsets.UTF_8);
+    return loadPublicKeyFromString(key);
   }
 
   public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
