@@ -2,12 +2,11 @@ package com.vannchhai.smart_salary_api.repositories;
 
 import com.vannchhai.smart_salary_api.dto.analytics.*;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
 import jakarta.persistence.Query;
-import org.springframework.stereotype.Repository;
-
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
@@ -85,7 +84,9 @@ public class AnalyticsCustomRepository {
             .map(row -> new RiskDistributionDto((String) row[0], ((Number) row[1]).longValue()))
             .toList();
 
-    StringBuilder deptSql = new StringBuilder("""
+    StringBuilder deptSql =
+        new StringBuilder(
+            """
         SELECT d.name, SUM(l.amount)
         FROM loans l
         JOIN employees e ON l.employee_id = e.id
@@ -115,11 +116,9 @@ public class AnalyticsCustomRepository {
     @SuppressWarnings("unchecked")
     List<Object[]> result = deptQuery.getResultList();
 
-    List<DepartmentLoanDto> dept = result.stream()
-            .map(row -> new DepartmentLoanDto(
-                    (String) row[0],
-                    (BigDecimal) row[1]
-            ))
+    List<DepartmentLoanDto> dept =
+        result.stream()
+            .map(row -> new DepartmentLoanDto((String) row[0], (BigDecimal) row[1]))
             .toList();
     return new LoanAnalyticsResponse(monthly, risk, dept);
   }

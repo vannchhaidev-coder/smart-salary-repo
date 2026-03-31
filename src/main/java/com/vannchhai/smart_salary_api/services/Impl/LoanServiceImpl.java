@@ -3,26 +3,27 @@ package com.vannchhai.smart_salary_api.services.Impl;
 import com.vannchhai.smart_salary_api.dto.request.LoanRequest;
 import com.vannchhai.smart_salary_api.dto.responses.PaginationDto;
 import com.vannchhai.smart_salary_api.dto.responses.PaginationResponse;
+import com.vannchhai.smart_salary_api.dto.responses.employees.EmployeeLoanResponse;
 import com.vannchhai.smart_salary_api.dto.responses.loans.LoanResponse;
 import com.vannchhai.smart_salary_api.enums.LoanStatus;
 import com.vannchhai.smart_salary_api.enums.ReferenceType;
 import com.vannchhai.smart_salary_api.enums.TransactionType;
 import com.vannchhai.smart_salary_api.exceptions.ResourceNotFoundException;
 import com.vannchhai.smart_salary_api.mapper.LoanMapper;
-import com.vannchhai.smart_salary_api.mapper.WalletTransactionMapper;
 import com.vannchhai.smart_salary_api.models.EmployeeModel;
 import com.vannchhai.smart_salary_api.models.LoanModel;
 import com.vannchhai.smart_salary_api.models.WalletModel;
 import com.vannchhai.smart_salary_api.models.WalletTransactionModel;
 import com.vannchhai.smart_salary_api.repositories.EmployeeRepository;
 import com.vannchhai.smart_salary_api.repositories.LoanRepository;
-import com.vannchhai.smart_salary_api.repositories.WalletRepository;
 import com.vannchhai.smart_salary_api.repositories.WalletTransactionRepository;
+import com.vannchhai.smart_salary_api.security.SecurityUtil;
 import com.vannchhai.smart_salary_api.services.LoanRiskService;
 import com.vannchhai.smart_salary_api.services.LoanService;
 import com.vannchhai.smart_salary_api.services.WalletService;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class LoanServiceImpl implements LoanService {
   private final WalletTransactionRepository walletTransactionRepository;
   private final WalletService walletService;
   private final LoanRiskService loanRiskService;
+  private final SecurityUtil securityUtil;
 
   @Override
   public PaginationResponse<LoanResponse> listLoans(PaginationDto pagination) {
@@ -58,6 +60,34 @@ public class LoanServiceImpl implements LoanService {
     pagination.setTotalPages(loanPage.getTotalPages());
 
     return new PaginationResponse<>(data, pagination);
+  }
+
+  @Override
+  public PaginationResponse<EmployeeLoanResponse> getLoanEmployeeList(PaginationDto pagination) {
+    UUID currentUserUuid = securityUtil.getUserUuid();
+
+    Pageable pageable =
+        PageRequest.of(
+            pagination.getPage(), pagination.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+
+    EmployeeModel employee =
+        employeeRepository
+            .findByUserUuid(currentUserUuid)
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException("Employee", "uuid", currentUserUuid.toString()));
+
+    Page<LoanModel> loanPage = loanRepository.findByEmployee(employee, pageable);
+
+    List<EmployeeLoanResponse> loans = loanMapper.toEmployeeDtoList(loanPage.getContent());
+
+    PaginationDto paginationDto = new PaginationDto();
+    paginationDto.setPage(loanPage.getNumber());
+    paginationDto.setSize(loanPage.getSize());
+    paginationDto.setTotalPages(loanPage.getTotalPages());
+    paginationDto.setTotal(loanPage.getTotalElements());
+
+    return new PaginationResponse<>(loans, paginationDto);
   }
 
   @Override
@@ -101,9 +131,9 @@ public class LoanServiceImpl implements LoanService {
         .orElseThrow(() -> new ResourceNotFoundException("Loan", "id", loanId));
   }
 
-  public void disburseLoan(LoanModel loan) {
-    WalletModel wallet = loan.getEmployee().getWallet();
+  public LoanModel disburseLoan(LoanModel loan) {
 
+    WalletModel wallet = loan.getEmployee().getWallet();
     WalletTransactionModel tx =
         WalletTransactionModel.builder()
             .wallet(wallet)
@@ -112,15 +142,17 @@ public class LoanServiceImpl implements LoanService {
             .referenceType(ReferenceType.LOAN)
             .referenceId(loan.getUuid())
             .description("Loan disbursement")
+            .transactionDate(LocalDateTime.now())
             .build();
 
     walletTransactionRepository.save(tx);
+
     walletService.credit(wallet, loan.getAmount());
 
     loan.setStatus(LoanStatus.APPROVED);
     loan.setRemainingBalance(loan.getAmount());
 
-    loanRepository.save(loan);
+    return loanRepository.save(loan);
   }
 
   @Override
@@ -168,12 +200,35 @@ public class LoanServiceImpl implements LoanService {
   }
 
   @Override
-  public void approvedLoan(UUID loanId) {
+  public EmployeeLoanResponse approvedLoan(UUID loanId) {
+
     LoanModel loan =
         loanRepository
             .findByUuid(loanId)
             .orElseThrow(() -> new ResourceNotFoundException("Loan", "id", loanId));
 
-    disburseLoan(loan);
+    LoanModel savedLoan = disburseLoan(loan);
+
+    return loanMapper.toResponseEmployeeList(savedLoan);
+  }
+
+  @Override
+  public EmployeeLoanResponse rejectLoan(UUID loanId) {
+    LoanModel loan =
+        loanRepository
+            .findByUuid(loanId)
+            .orElseThrow(() -> new ResourceNotFoundException("Loan", "id", loanId));
+
+    if (loan.getStatus() != LoanStatus.PENDING) {
+      throw new IllegalStateException("Only pending loans can be rejected");
+    }
+
+    String currentUserName = securityUtil.getCurrentUser().getName();
+    loan.setStatus(LoanStatus.REJECTED);
+    loan.setApprovedBy(currentUserName);
+
+    LoanModel savedLoan = loanRepository.save(loan);
+
+    return loanMapper.toResponseEmployeeList(savedLoan);
   }
 }

@@ -1,14 +1,13 @@
 package com.vannchhai.smart_salary_api.mapper;
 
-import com.vannchhai.smart_salary_api.dto.responses.WalletResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletResponse;
 import com.vannchhai.smart_salary_api.models.LoanModel;
 import com.vannchhai.smart_salary_api.models.WalletModel;
+import java.math.BigDecimal;
+import java.util.List;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Mapper(componentModel = "spring", uses = LoanMapper.class)
 public interface WalletMapper {
@@ -18,9 +17,7 @@ public interface WalletMapper {
   @Mapping(target = "department", source = "wallet.employee.department.name")
   @Mapping(target = "walletBalance", source = "wallet.balance")
   @Mapping(target = "baseSalary", source = "wallet.employee.position.baseSalary")
-  @Mapping(
-      target = "deductions",
-      expression = "java(calculateTotalDeductions(loans, loanMapper))")
+  @Mapping(target = "deductions", expression = "java(calculateTotalDeductions(loans, loanMapper))")
   @Mapping(
       target = "netSalary",
       expression =

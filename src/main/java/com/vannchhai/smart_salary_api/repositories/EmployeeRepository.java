@@ -14,11 +14,15 @@ public interface EmployeeRepository
 
   Optional<EmployeeModel> findByEmployeeCode(String employeeCode);
 
+  Optional<EmployeeModel> findByUserUuid(UUID userUuid);
+
   Optional<EmployeeModel> findByUser(UserModel user);
 
   Optional<EmployeeModel> findByUser_Email(String email);
 
   Optional<EmployeeModel> findByUuid(UUID uuid);
+
+  boolean existsByUser(UserModel user);
 
   boolean existsByEmployeeCode(String employeeCode);
 }

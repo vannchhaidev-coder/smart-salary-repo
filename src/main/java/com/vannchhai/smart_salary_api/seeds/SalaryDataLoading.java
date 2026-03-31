@@ -6,6 +6,7 @@ import com.vannchhai.smart_salary_api.repositories.EmployeeRepository;
 import com.vannchhai.smart_salary_api.repositories.SalaryRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -16,17 +17,49 @@ import org.springframework.stereotype.Component;
 @Order(7)
 public class SalaryDataLoading implements CommandLineRunner {
 
-  private final SalaryRepository salaryRepository;
   private final EmployeeRepository employeeRepository;
+  private final SalaryRepository salaryRepository;
 
   @Override
   public void run(String... args) {
 
-    EmployeeModel emp1 = employeeRepository.findByEmployeeCode("EMP001").orElseThrow();
-    EmployeeModel emp2 = employeeRepository.findByEmployeeCode("EMP002").orElseThrow();
+    List<EmployeeModel> employees = employeeRepository.findAll();
 
-    createSalaryIfNotExists(emp1, new BigDecimal("1500"), new BigDecimal("200"));
-    createSalaryIfNotExists(emp2, new BigDecimal("1200"), new BigDecimal("150"));
+    if (employees.isEmpty()) {
+      System.out.println("No employees found. Skipping salary seed.");
+      return;
+    }
+
+    for (EmployeeModel employee : employees) {
+
+      BigDecimal baseSalary;
+      BigDecimal allowance;
+
+      String position = employee.getPosition().getTitle();
+
+      switch (position) {
+        case "Manager":
+          baseSalary = new BigDecimal("2000");
+          allowance = new BigDecimal("300");
+          break;
+
+        case "Engineer":
+          baseSalary = new BigDecimal("1500");
+          allowance = new BigDecimal("200");
+          break;
+
+        case "Accountant":
+          baseSalary = new BigDecimal("1200");
+          allowance = new BigDecimal("150");
+          break;
+
+        default:
+          baseSalary = new BigDecimal("1000");
+          allowance = new BigDecimal("100");
+      }
+
+      createSalaryIfNotExists(employee, baseSalary, allowance);
+    }
   }
 
   private void createSalaryIfNotExists(
@@ -34,7 +67,7 @@ public class SalaryDataLoading implements CommandLineRunner {
 
     LocalDate effectiveDate = LocalDate.of(2026, 1, 1);
 
-    if (salaryRepository.existsByEmployeeIdAndEffectiveDate(employee.getId(), effectiveDate)) {
+    if (salaryRepository.existsByEmployeeAndEffectiveDate(employee, effectiveDate)) {
       return;
     }
 

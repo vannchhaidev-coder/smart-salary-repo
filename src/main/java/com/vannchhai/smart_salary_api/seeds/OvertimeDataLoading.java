@@ -6,6 +6,7 @@ import com.vannchhai.smart_salary_api.repositories.EmployeeRepository;
 import com.vannchhai.smart_salary_api.repositories.OvertimeRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -22,16 +23,36 @@ public class OvertimeDataLoading implements CommandLineRunner {
   @Override
   public void run(String... args) {
 
-    EmployeeModel emp1 = employeeRepository.findByEmployeeCode("EMP001").orElseThrow();
-    EmployeeModel emp2 = employeeRepository.findByEmployeeCode("EMP002").orElseThrow();
+    List<EmployeeModel> employees = employeeRepository.findAll();
 
-    createOvertime(emp1, LocalDate.of(2026, 3, 5), new BigDecimal("2"), new BigDecimal("10"));
-    createOvertime(emp2, LocalDate.of(2026, 3, 6), new BigDecimal("3"), new BigDecimal("10"));
+    if (employees.isEmpty()) {
+      System.out.println("No employees found, skipping overtime seeding.");
+      return;
+    }
+
+    // Example: generate overtime for March 2026
+    LocalDate startDate = LocalDate.of(2026, 3, 1);
+    LocalDate endDate = LocalDate.of(2026, 3, 31);
+
+    for (EmployeeModel employee : employees) {
+      LocalDate currentDate = startDate;
+
+      while (!currentDate.isAfter(endDate)) {
+        // Skip weekends
+        if (currentDate.getDayOfWeek().getValue() <= 5) {
+          createOvertimeIfNotExists(
+              employee, currentDate, new BigDecimal("2"), new BigDecimal("10"));
+        }
+        currentDate = currentDate.plusDays(1);
+      }
+
+      System.out.println(
+          "Overtime generated for " + employee.getEmployeeCode() + " for March 2026");
+    }
   }
 
-  private void createOvertime(
+  private void createOvertimeIfNotExists(
       EmployeeModel employee, LocalDate date, BigDecimal hours, BigDecimal rate) {
-
     if (overtimeRepository.existsByEmployeeAndWorkDate(employee, date)) {
       return;
     }

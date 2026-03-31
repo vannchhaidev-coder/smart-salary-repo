@@ -2,8 +2,11 @@ package com.vannchhai.smart_salary_api.mapper;
 
 import com.vannchhai.smart_salary_api.dto.responses.MeResponse;
 import com.vannchhai.smart_salary_api.dto.responses.login.UserDto;
+import com.vannchhai.smart_salary_api.enums.Badge;
 import com.vannchhai.smart_salary_api.models.EmployeeModel;
 import com.vannchhai.smart_salary_api.models.UserModel;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -24,10 +27,8 @@ public interface UserMapper {
       target = "position",
       expression =
           "java(employee != null && employee.getPosition() != null ? employee.getPosition().getTitle() : null)")
-  @Mapping(
-      target = "badge",
-      expression = "java(employee != null ? employee.getBadge().name() : null)")
-  @Mapping(target = "uuid", source = "user.uuid")
+  @Mapping(target = "badge", expression = "java(mapStatus(employee.getBadge()))")
+  @Mapping(target = "uuid", source = "employee.uuid")
   @Mapping(target = "email", source = "user.email")
   @Mapping(target = "name", source = "user.name")
   UserDto toDto(UserModel user, EmployeeModel employee);
@@ -35,4 +36,12 @@ public interface UserMapper {
   @Mapping(target = "uuid", expression = "java(user.getUuid().toString())")
   @Mapping(target = "role", source = "role.roleName")
   MeResponse toMeResponse(UserModel user);
+
+  default String mapStatus(Badge status) {
+    if (status == null) return null;
+
+    return Arrays.stream(status.name().toLowerCase().split("_"))
+        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+        .collect(Collectors.joining(" "));
+  }
 }

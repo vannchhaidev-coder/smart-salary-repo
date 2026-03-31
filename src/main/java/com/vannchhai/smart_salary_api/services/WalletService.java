@@ -1,8 +1,8 @@
 package com.vannchhai.smart_salary_api.services;
 
 import com.vannchhai.smart_salary_api.dto.request.WalletTransactionRequest;
-import com.vannchhai.smart_salary_api.dto.responses.WalletBalanceResponse;
-import com.vannchhai.smart_salary_api.dto.responses.WalletResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletBalanceResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletResponse;
 import com.vannchhai.smart_salary_api.enums.ReferenceType;
 import com.vannchhai.smart_salary_api.enums.TransactionType;
 import com.vannchhai.smart_salary_api.models.WalletModel;

@@ -2,6 +2,7 @@ package com.vannchhai.smart_salary_api.controllers.admin;
 
 import com.vannchhai.smart_salary_api.dto.responses.PaginationDto;
 import com.vannchhai.smart_salary_api.dto.responses.PaginationResponse;
+import com.vannchhai.smart_salary_api.dto.responses.employees.EmployeeLoanResponse;
 import com.vannchhai.smart_salary_api.dto.responses.loans.LoanResponse;
 import com.vannchhai.smart_salary_api.services.LoanService;
 import java.math.BigDecimal;
@@ -34,9 +35,11 @@ public class AdminLoanController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/{id}/approve")
-  public ResponseEntity<String> approveLoan(@PathVariable UUID id) {
-    loanService.approvedLoan(id);
-    return ResponseEntity.ok("Loan approved successfully");
+  public ResponseEntity<EmployeeLoanResponse> approveLoan(@PathVariable UUID id) {
+
+    EmployeeLoanResponse response = loanService.approvedLoan(id);
+
+    return ResponseEntity.ok(response);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -44,5 +47,13 @@ public class AdminLoanController {
   public ResponseEntity<BigDecimal> getEmployeeDebt(@PathVariable UUID id) {
     BigDecimal debt = loanService.getTotalActiveDebt(id);
     return ResponseEntity.ok(debt);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/{id}/reject")
+  public ResponseEntity<EmployeeLoanResponse> rejectLoan(@PathVariable UUID id) {
+
+    EmployeeLoanResponse response = loanService.rejectLoan(id);
+    return ResponseEntity.ok(response);
   }
 }

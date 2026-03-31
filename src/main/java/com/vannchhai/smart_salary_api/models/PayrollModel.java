@@ -5,6 +5,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -26,6 +27,12 @@ public class PayrollModel extends BaseIdModel {
   @ManyToOne
   @JoinColumn(name = "employee_id", nullable = false)
   private EmployeeModel employee;
+
+  @Column(length = 20)
+  private String status;
+
+  @Column(name = "processed_date")
+  private LocalDateTime processedDate;
 
   @Min(1)
   @Max(12)
@@ -56,6 +63,9 @@ public class PayrollModel extends BaseIdModel {
   public void generateDefaults() {
     if (uuid == null) {
       uuid = UUID.randomUUID();
+    }
+    if (status == null) {
+      status = "pending";
     }
   }
 }

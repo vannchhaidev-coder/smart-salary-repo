@@ -1,12 +1,9 @@
 package com.vannchhai.smart_salary_api.dto.request;
 
-import com.vannchhai.smart_salary_api.enums.LoanTransactionType;
 import com.vannchhai.smart_salary_api.enums.TransactionType;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import lombok.*;
 
 @Data

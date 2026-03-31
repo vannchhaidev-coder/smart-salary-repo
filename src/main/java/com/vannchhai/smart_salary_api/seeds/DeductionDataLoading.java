@@ -26,39 +26,35 @@ public class DeductionDataLoading implements CommandLineRunner {
 
     List<EmployeeModel> employees = employeeRepository.findAll();
 
+    LocalDate deductionDate = LocalDate.of(2026, 3, 5);
+
     for (EmployeeModel emp : employees) {
 
       if (!deductionRepository
-          .findByEmployeeIdAndDeductionDate(emp.getId(), LocalDate.of(2026, 3, 5))
+          .findByEmployeeIdAndDeductionDate(emp.getId(), deductionDate)
           .isEmpty()) {
         continue;
       }
 
-      DeductionModel taxDeduction =
-          DeductionModel.builder()
-              .employee(emp)
-              .deductionType(DeductionType.TAX)
-              .amount(new BigDecimal("150"))
-              .deductionDate(LocalDate.of(2026, 3, 5))
-              .build();
+      List<DeductionModel> deductions =
+          List.of(
+              createDeduction(emp, DeductionType.TAX, new BigDecimal("150"), deductionDate),
+              createDeduction(emp, DeductionType.LOAN, new BigDecimal("200"), deductionDate),
+              createDeduction(emp, DeductionType.PENALTY, new BigDecimal("50"), deductionDate));
 
-      DeductionModel loanDeduction =
-          DeductionModel.builder()
-              .employee(emp)
-              .deductionType(DeductionType.LOAN)
-              .amount(new BigDecimal("200"))
-              .deductionDate(LocalDate.of(2026, 3, 5))
-              .build();
-
-      DeductionModel penaltyDeduction =
-          DeductionModel.builder()
-              .employee(emp)
-              .deductionType(DeductionType.PENALTY)
-              .amount(new BigDecimal("50"))
-              .deductionDate(LocalDate.of(2026, 3, 5))
-              .build();
-
-      deductionRepository.saveAll(List.of(taxDeduction, loanDeduction, penaltyDeduction));
+      deductionRepository.saveAll(deductions);
+      System.out.println(
+          "Deductions created for " + emp.getEmployeeCode() + " on " + deductionDate);
     }
+  }
+
+  private DeductionModel createDeduction(
+      EmployeeModel emp, DeductionType type, BigDecimal amount, LocalDate date) {
+    return DeductionModel.builder()
+        .employee(emp)
+        .deductionType(type)
+        .amount(amount)
+        .deductionDate(date)
+        .build();
   }
 }

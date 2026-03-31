@@ -24,13 +24,19 @@ public class UserDataLoading implements CommandLineRunner {
   public void run(String... args) {
 
     UserRoleModel adminRole = roleRepository.findByRoleName("ROLE_ADMIN").orElseThrow();
-
-    UserRoleModel userRole = roleRepository.findByRoleName("ROLE_USER").orElseThrow();
     UserRoleModel employeeRole = roleRepository.findByRoleName("ROLE_EMPLOYEE").orElseThrow();
 
-    createUserIfNotExists("Admin User", "admin@example.com", "password123", adminRole);
-    createUserIfNotExists("Normal User", "user@example.com", "password123", userRole);
-    createUserIfNotExists("Bopha Keo", "bopha@company.com", "password123", userRole);
+    createUserIfNotExists("HR manager", "admin@example.com", "password123", adminRole);
+    createUserIfNotExists("Rothna Chan", "rothna@example.com", "employee@123", employeeRole);
+    createUserIfNotExists("Bopha Keo", "bopha@company.com", "employee@123", employeeRole);
+    createUserIfNotExists("Vann Nak", "vannak@example.com", "employee@123", employeeRole);
+    createUserIfNotExists("Nary Chan", "nary@company.com", "employee@123", employeeRole);
+    createUserIfNotExists("Sok Chheav", "sokchheav@example.com", "employee@123", employeeRole);
+    createUserIfNotExists("Sokly Seng", "sokly@company.com", "employee@123", employeeRole);
+    createUserIfNotExists("Sok Chheav", "sokchheav12@example.com", "employee@123", employeeRole);
+    createUserIfNotExists("Sokly Seng", "sokly03@company.com", "employee@123", employeeRole);
+    createUserIfNotExists("Bopha Keo", "bopha01@company.com", "employee@123", employeeRole);
+    createUserIfNotExists("Vann Nak", "vannak04@example.com", "employee@123", employeeRole);
     createUserIfNotExists("Vann Chhai", "vannchhai-dev@gmail.com", "employee@123", employeeRole);
   }
 

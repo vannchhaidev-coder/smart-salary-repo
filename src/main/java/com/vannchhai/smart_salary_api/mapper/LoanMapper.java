@@ -1,6 +1,7 @@
 package com.vannchhai.smart_salary_api.mapper;
 
 import com.vannchhai.smart_salary_api.dto.request.LoanRequest;
+import com.vannchhai.smart_salary_api.dto.responses.employees.EmployeeLoanResponse;
 import com.vannchhai.smart_salary_api.dto.responses.loans.LoanResponse;
 import com.vannchhai.smart_salary_api.enums.LoanStatus;
 import com.vannchhai.smart_salary_api.models.EmployeeModel;
@@ -10,6 +11,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 @Mapper(
     componentModel = "spring",
@@ -49,7 +51,43 @@ public interface LoanMapper {
   @Mapping(target = "interestRate", constant = "5.0")
   LoanModel toEntity(LoanRequest request, EmployeeModel employee);
 
-  List<LoanResponse> toResponseList(List<LoanModel> loans);
+  List<EmployeeLoanResponse> toEmployeeDtoList(List<LoanModel> loans);
+
+  @Mapping(target = "uuid", source = "uuid")
+  @Mapping(
+      target = "employeeId",
+      expression =
+          "java(loan.getEmployee() != null ? loan.getEmployee().getUuid().toString() : null)")
+  @Mapping(
+      target = "employeeName",
+      expression =
+          "java(loan.getEmployee() != null && loan.getEmployee().getUser() != null ? loan.getEmployee().getUser().getName() : null)")
+  @Mapping(
+      target = "department",
+      expression =
+          "java(loan.getEmployee() != null && loan.getEmployee().getDepartment() != null ? loan.getEmployee().getDepartment().getName() : null)")
+  @Mapping(target = "amount", source = "amount")
+  @Mapping(target = "reason", source = "reason")
+  @Mapping(target = "status", source = "status", qualifiedByName = "mapStatus")
+  @Mapping(target = "repaymentMonths", expression = "java(getMonths(loan))")
+  @Mapping(target = "monthlyDeduction", expression = "java(calculateMonthly(loan))")
+  @Mapping(target = "remainingBalance", source = "remainingBalance")
+  @Mapping(target = "riskScore", source = "riskScore")
+  @Mapping(target = "riskLevel", source = "riskLevel")
+  @Mapping(
+      target = "requestDate",
+      expression =
+          "java(loan.getCreatedAt() != null ? loan.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toLocalDate() : null)")
+  @Mapping(
+      target = "approvedDate",
+      expression = "java(loan.getEndDate() != null ? loan.getEndDate() : null)")
+  @Mapping(target = "approvedBy", source = "approvedBy")
+  EmployeeLoanResponse toResponseEmployeeList(LoanModel loan);
+
+  @Named("mapStatus")
+  default String mapStatus(LoanStatus status) {
+    return status == null ? null : status.name().toLowerCase();
+  }
 
   default int getMonths(LoanModel loan) {
     if (loan.getStartDate() == null || loan.getEndDate() == null) return 0;

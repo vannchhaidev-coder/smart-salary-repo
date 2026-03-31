@@ -1,23 +1,25 @@
 package com.vannchhai.smart_salary_api.controllers.employee;
 
 import com.vannchhai.smart_salary_api.dto.request.TransactionRequest;
-import com.vannchhai.smart_salary_api.dto.request.WalletTransactionRequest;
-import com.vannchhai.smart_salary_api.dto.responses.WalletBalanceResponse;
-import com.vannchhai.smart_salary_api.dto.responses.WalletResponse;
-import com.vannchhai.smart_salary_api.dto.responses.WalletTransactionResponse;
+import com.vannchhai.smart_salary_api.dto.responses.PaginationDto;
+import com.vannchhai.smart_salary_api.dto.responses.PaginationResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletBalanceResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletTransactionResponse;
 import com.vannchhai.smart_salary_api.services.WalletService;
 import com.vannchhai.smart_salary_api.services.WalletTransactionService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(WalletController.BASE_PATH)
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('EMPLOYEE')")
 public class WalletController {
 
   public static final String BASE_PATH = "/api/v1/wallet";
@@ -42,15 +44,25 @@ public class WalletController {
 
   @PostMapping
   public ResponseEntity<WalletTransactionResponse> createTransaction(
-          @Valid @RequestBody TransactionRequest request) {
+      @Valid @RequestBody TransactionRequest request) {
 
     WalletTransactionResponse response = walletTransactionService.createTransaction(request);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/{walletId}/transactions")
-  public List<WalletTransactionResponse> getTransactions(
-          @PathVariable UUID walletId) {
-    return walletTransactionService.getTransactions(walletId);
+  public ResponseEntity<PaginationResponse<WalletTransactionResponse>> getWalletTransactions(
+      @PathVariable UUID walletId,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+
+    PaginationDto pagination = new PaginationDto();
+    pagination.setPage(page);
+    pagination.setSize(size);
+
+    PaginationResponse<WalletTransactionResponse> response =
+        walletTransactionService.getTransactions(walletId, pagination);
+
+    return ResponseEntity.ok(response);
   }
 }

@@ -90,11 +90,8 @@ public class WalletDataLoading implements CommandLineRunner {
                 .build();
 
         List<WalletTransactionModel> transactions =
-                List.of(
-                        payrollTransaction,
-                        overtimeTransaction,
-                        adjustmentTransaction,
-                        paymentTransaction);
+            List.of(
+                payrollTransaction, overtimeTransaction, adjustmentTransaction, paymentTransaction);
 
         transactionRepository.saveAll(transactions);
 

@@ -2,8 +2,9 @@ package com.vannchhai.smart_salary_api.mapper;
 
 import com.vannchhai.smart_salary_api.dto.request.TransactionRequest;
 import com.vannchhai.smart_salary_api.dto.request.WalletTransactionRequest;
-import com.vannchhai.smart_salary_api.dto.responses.WalletTransactionResponse;
 import com.vannchhai.smart_salary_api.dto.responses.loans.LoanTransactionResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletEmployeeTransactionResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletTransactionResponse;
 import com.vannchhai.smart_salary_api.enums.TransactionType;
 import com.vannchhai.smart_salary_api.models.LoanModel;
 import com.vannchhai.smart_salary_api.models.WalletModel;
@@ -11,6 +12,7 @@ import com.vannchhai.smart_salary_api.models.WalletTransactionModel;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -37,14 +39,15 @@ public interface WalletTransactionMapper {
   @Mapping(target = "amount", source = "request.amount")
   @Mapping(target = "description", source = "request.description")
   @Mapping(
-          target = "transactionDate",
-          expression = "java(request.getTransactionDate() != null ? request.getTransactionDate() : java.time.LocalDateTime.now())"
-  )
+      target = "transactionDate",
+      expression =
+          "java(request.getTransactionDate() != null ? request.getTransactionDate() : java.time.LocalDateTime.now())")
   @Mapping(target = "referenceId", ignore = true)
   @Mapping(target = "referenceType", ignore = true)
   WalletTransactionModel toWalletTransaction(TransactionRequest request, WalletModel wallet);
 
   @Mapping(target = "id", source = "uuid")
+  @Mapping(source = "wallet.employee.uuid", target = "employeeId")
   WalletTransactionResponse toTransactionResponse(WalletTransactionModel transaction);
 
   @Mapping(target = "amount", source = "amount")
@@ -53,6 +56,14 @@ public interface WalletTransactionMapper {
   @Mapping(target = "referenceType", constant = "LOAN")
   @Mapping(target = "description", constant = "Loan disbursement")
   WalletTransactionRequest toWalletRequest(LoanModel loan);
+
+  @Mapping(source = "uuid", target = "id")
+  @Mapping(source = "wallet.employee.uuid", target = "employeeId")
+  @Mapping(source = "transactionType", target = "type")
+  @Mapping(source = "transactionDate", target = "date")
+  WalletEmployeeTransactionResponse toResponse(WalletTransactionModel entity);
+
+  List<WalletEmployeeTransactionResponse> toResponseList(List<WalletTransactionModel> entities);
 
   default String mapType(TransactionType type) {
     return type == TransactionType.DEBIT ? "deduction" : "credit";

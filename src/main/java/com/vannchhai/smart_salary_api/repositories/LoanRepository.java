@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,11 +17,21 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LoanRepository extends JpaRepository<LoanModel, UUID> {
 
+  List<LoanModel> findByEmployeeAndStatusIn(EmployeeModel employee, List<LoanStatus> statuses);
+
+  List<LoanModel> findByEmployee_Uuid(UUID employeeUuid);
+
   long countByEmployee(EmployeeModel employee);
+
+  Page<LoanModel> findByEmployee(EmployeeModel employee, Pageable pageable);
 
   Optional<LoanModel> findByUuid(UUID uuid);
 
+  Optional<LoanModel> findByEmployeeId(Long employeeId);
+
   List<LoanModel> findByEmployeeIdAndStatus(Long employeeId, LoanStatus status);
+
+  List<LoanModel> findByEmployeeIdAndStatusIn(Long employeeId, List<LoanStatus> statuses);
 
   @Query(
       """

@@ -8,4 +8,6 @@ public interface PayrollService {
   BigDecimal getAverageSalary(UUID employeeId);
 
   BigDecimal getLatestSalary(UUID employeeId);
+
+  void generatePayroll(int month, int year);
 }

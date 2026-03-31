@@ -1,10 +1,9 @@
 package com.vannchhai.smart_salary_api.repositories;
 
-import com.vannchhai.smart_salary_api.dto.responses.WalletResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletResponse;
 import com.vannchhai.smart_salary_api.enums.LoanStatus;
 import com.vannchhai.smart_salary_api.models.EmployeeModel;
 import com.vannchhai.smart_salary_api.models.WalletModel;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,8 +23,11 @@ public interface WalletRepository extends JpaRepository<WalletModel, Long> {
 
   Optional<WalletModel> findByEmployee_EmployeeCode(String employeeCode);
 
-  @Query("""
-SELECT new com.vannchhai.smart_salary_api.dto.responses.WalletResponse(
+  Optional<WalletModel> findByEmployeeUuid(UUID employeeUuid);
+
+  @Query(
+      """
+SELECT new com.vannchhai.smart_salary_api.dto.responses.wallet.WalletResponse(
     w.uuid,
     e.employeeCode,
     u.name,
@@ -40,8 +42,8 @@ JOIN w.employee e
 JOIN e.user u
 JOIN e.department d
 JOIN e.position p
-LEFT JOIN LoanModel l 
-    ON l.employee = e 
+LEFT JOIN LoanModel l
+    ON l.employee = e
     AND l.status = :status
 GROUP BY w.uuid, e.employeeCode, u.name, d.name, w.balance, p.baseSalary
 """)

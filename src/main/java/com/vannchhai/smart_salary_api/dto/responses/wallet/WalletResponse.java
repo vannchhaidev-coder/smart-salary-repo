@@ -1,10 +1,9 @@
-package com.vannchhai.smart_salary_api.dto.responses;
-
-import lombok.Getter;
-import lombok.Setter;
+package com.vannchhai.smart_salary_api.dto.responses.wallet;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -20,15 +19,14 @@ public class WalletResponse {
   private BigDecimal netSalary;
 
   public WalletResponse(
-          UUID uuid,
-          String employeeId,
-          String name,
-          String department,
-          BigDecimal walletBalance,
-          BigDecimal baseSalary,
-          BigDecimal deductions,
-          BigDecimal netSalary
-  ) {
+      UUID uuid,
+      String employeeId,
+      String name,
+      String department,
+      BigDecimal walletBalance,
+      BigDecimal baseSalary,
+      BigDecimal deductions,
+      BigDecimal netSalary) {
     this.uuid = uuid;
     this.employeeId = employeeId;
     this.name = name;

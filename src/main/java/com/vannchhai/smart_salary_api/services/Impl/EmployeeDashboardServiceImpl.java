@@ -1,12 +1,11 @@
 package com.vannchhai.smart_salary_api.services.Impl;
 
+import com.vannchhai.smart_salary_api.enums.Badge;
 import com.vannchhai.smart_salary_api.models.EmployeeModel;
+import com.vannchhai.smart_salary_api.models.PayrollModel;
 import com.vannchhai.smart_salary_api.models.SalaryModel;
 import com.vannchhai.smart_salary_api.models.WalletModel;
-import com.vannchhai.smart_salary_api.repositories.AttendanceRepository;
-import com.vannchhai.smart_salary_api.repositories.LoanRepository;
-import com.vannchhai.smart_salary_api.repositories.SalaryRepository;
-import com.vannchhai.smart_salary_api.repositories.WalletRepository;
+import com.vannchhai.smart_salary_api.repositories.*;
 import com.vannchhai.smart_salary_api.services.EmployeeDashboardService;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +18,23 @@ public class EmployeeDashboardServiceImpl implements EmployeeDashboardService {
   private final SalaryRepository salaryRepository;
   private final AttendanceRepository attendanceRepository;
   private final LoanRepository loanRepository;
+  private final PayrollRepository payrollRepository;
 
   public BigDecimal getSalary(EmployeeModel employee) {
 
+    PayrollModel payroll =
+        payrollRepository
+            .findTopByEmployeeAndStatusOrderByPayYearDescPayMonthDesc(employee, "processed")
+            .orElse(null);
+
+    if (payroll != null) {
+      return payroll.getNetSalary();
+    }
+
     SalaryModel salary =
-        salaryRepository.findTopByEmployeeOrderByEffectiveDateDesc(employee).orElse(null);
+        salaryRepository
+            .findTopByEmployee_IdOrderByEffectiveDateDesc(employee.getId())
+            .orElse(null);
 
     return salary != null ? salary.getBaseSalary() : BigDecimal.ZERO;
   }
@@ -33,6 +44,17 @@ public class EmployeeDashboardServiceImpl implements EmployeeDashboardService {
     WalletModel wallet = walletRepository.findByEmployee(employee).orElse(null);
 
     return wallet != null ? wallet.getBalance() : BigDecimal.ZERO;
+  }
+
+  @Override
+  public Badge getBadge(EmployeeModel employee) {
+
+    int risk = getRiskScore(employee);
+
+    if (risk >= 90) return Badge.EXCELLENT;
+    if (risk >= 75) return Badge.GOOD;
+    if (risk >= 50) return Badge.NEEDS_IMPROVEMENT;
+    return Badge.POOR;
   }
 
   public int getAttendanceRate(EmployeeModel employee) {
@@ -71,7 +93,6 @@ public class EmployeeDashboardServiceImpl implements EmployeeDashboardService {
 
     int loanPenalty = (int) (activeLoans * 5);
     int score = (attendance + health) / 2 - loanPenalty;
-
     return Math.max(score, 0);
   }
 }

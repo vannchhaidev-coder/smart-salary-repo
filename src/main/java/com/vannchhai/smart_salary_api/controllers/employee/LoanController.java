@@ -2,6 +2,9 @@ package com.vannchhai.smart_salary_api.controllers.employee;
 
 import com.vannchhai.smart_salary_api.dto.request.LoanRequest;
 import com.vannchhai.smart_salary_api.dto.request.WalletTransactionRequest;
+import com.vannchhai.smart_salary_api.dto.responses.PaginationDto;
+import com.vannchhai.smart_salary_api.dto.responses.PaginationResponse;
+import com.vannchhai.smart_salary_api.dto.responses.employees.EmployeeLoanResponse;
 import com.vannchhai.smart_salary_api.dto.responses.loans.LoanResponse;
 import com.vannchhai.smart_salary_api.dto.responses.loans.LoanTransactionResponse;
 import com.vannchhai.smart_salary_api.mapper.WalletTransactionMapper;
@@ -69,6 +72,20 @@ public class LoanController {
   public ResponseEntity<?> repayLoan(@PathVariable UUID uuid, @RequestParam BigDecimal amount) {
     loanService.repayLoan(uuid, amount);
     return ResponseEntity.ok("Payment successful");
+  }
+
+  @PreAuthorize("hasRole('EMPLOYEE')")
+  @GetMapping("/employees")
+  public ResponseEntity<PaginationResponse<EmployeeLoanResponse>> getMyLoans(
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+
+    PaginationDto pagination = new PaginationDto();
+    pagination.setPage(page);
+    pagination.setSize(size);
+
+    PaginationResponse<EmployeeLoanResponse> response = loanService.getLoanEmployeeList(pagination);
+
+    return ResponseEntity.ok(response);
   }
 
   private boolean isEmployee() {

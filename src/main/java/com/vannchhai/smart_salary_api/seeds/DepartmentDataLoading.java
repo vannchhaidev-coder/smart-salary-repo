@@ -17,6 +17,10 @@ public class DepartmentDataLoading implements CommandLineRunner {
   @Override
   public void run(String... args) {
 
+    createDepartmentIfNotExists("Sales", "Sales Department");
+    createDepartmentIfNotExists("Operations", "Operations Department");
+    createDepartmentIfNotExists("R&D", "Research and Development Department");
+
     createDepartmentIfNotExists("IT", "Information Technology Department");
     createDepartmentIfNotExists("HR", "Human Resource Department");
     createDepartmentIfNotExists("Finance", "Finance Department");

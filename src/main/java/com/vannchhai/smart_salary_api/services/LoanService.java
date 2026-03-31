@@ -3,6 +3,7 @@ package com.vannchhai.smart_salary_api.services;
 import com.vannchhai.smart_salary_api.dto.request.LoanRequest;
 import com.vannchhai.smart_salary_api.dto.responses.PaginationDto;
 import com.vannchhai.smart_salary_api.dto.responses.PaginationResponse;
+import com.vannchhai.smart_salary_api.dto.responses.employees.EmployeeLoanResponse;
 import com.vannchhai.smart_salary_api.dto.responses.loans.LoanResponse;
 import com.vannchhai.smart_salary_api.models.LoanModel;
 import java.math.BigDecimal;
@@ -11,6 +12,8 @@ import java.util.UUID;
 
 public interface LoanService {
   PaginationResponse<LoanResponse> listLoans(PaginationDto pagination);
+
+  PaginationResponse<EmployeeLoanResponse> getLoanEmployeeList(PaginationDto pagination);
 
   LoanResponse createLoan(LoanRequest request);
 
@@ -22,9 +25,11 @@ public interface LoanService {
 
   BigDecimal getTotalPaid(UUID loanId);
 
-  void disburseLoan(LoanModel loan);
+  LoanModel disburseLoan(LoanModel loan);
 
   void repayLoan(UUID loanId, BigDecimal amount);
 
-  void approvedLoan(UUID loanId);
+  EmployeeLoanResponse approvedLoan(UUID loanId);
+
+  EmployeeLoanResponse rejectLoan(UUID loanId);
 }

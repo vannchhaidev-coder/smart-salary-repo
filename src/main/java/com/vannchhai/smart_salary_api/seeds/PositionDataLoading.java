@@ -22,6 +22,11 @@ public class PositionDataLoading implements CommandLineRunner {
     createPositionIfNotExists("HR Manager", new BigDecimal("1200"));
     createPositionIfNotExists("Accountant", new BigDecimal("1000"));
     createPositionIfNotExists("Manager", new BigDecimal("2000"));
+
+    createPositionIfNotExists("Sales Executive", new BigDecimal("1300"));
+    createPositionIfNotExists("Operations Lead", new BigDecimal("1800"));
+    createPositionIfNotExists("Research Analyst", new BigDecimal("1600"));
+    createPositionIfNotExists("Marketing Specialist", new BigDecimal("1400"));
   }
 
   private void createPositionIfNotExists(String title, BigDecimal salary) {

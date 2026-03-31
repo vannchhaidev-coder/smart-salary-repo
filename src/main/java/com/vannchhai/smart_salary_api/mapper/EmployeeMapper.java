@@ -5,8 +5,11 @@ import com.vannchhai.smart_salary_api.dto.request.EmployeeUpdateRequest;
 import com.vannchhai.smart_salary_api.dto.responses.employees.EmployeeCreateResponse;
 import com.vannchhai.smart_salary_api.dto.responses.employees.EmployeeResponse;
 import com.vannchhai.smart_salary_api.dto.responses.employees.EmployeeUpdateResponse;
+import com.vannchhai.smart_salary_api.enums.Badge;
 import com.vannchhai.smart_salary_api.models.EmployeeModel;
 import com.vannchhai.smart_salary_api.services.EmployeeDashboardService;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,7 +22,7 @@ public abstract class EmployeeMapper {
   @Autowired protected EmployeeDashboardService dashboardService;
 
   @Mapping(target = "id", source = "uuid")
-  @Mapping(target = "employeeCode", source = "employeeCode")
+  @Mapping(target = "employeeId", source = "employeeCode")
   @Mapping(target = "name", source = "user.name")
   @Mapping(target = "email", source = "user.email")
   @Mapping(target = "role", source = "user.role.roleName")
@@ -36,7 +39,7 @@ public abstract class EmployeeMapper {
       target = "financialHealthScore",
       expression = "java(dashboardService.getFinancialHealthScore(employee))")
   @Mapping(target = "riskScore", expression = "java(dashboardService.getRiskScore(employee))")
-  @Mapping(target = "badge", expression = "java(employee.getBadge().name())")
+  @Mapping(target = "badge", expression = "java(dashboardService.getBadge(employee).name())")
   public abstract EmployeeResponse toResponse(EmployeeModel employee);
 
   @Mapping(target = "department", ignore = true)
@@ -70,4 +73,12 @@ public abstract class EmployeeMapper {
   @Mapping(target = "department", source = "department.name")
   @Mapping(target = "position", source = "position.title")
   public abstract EmployeeUpdateResponse toUpdateResponse(EmployeeModel employee);
+
+  protected String mapStatus(Badge status) {
+    if (status == null) return null;
+
+    return Arrays.stream(status.name().toLowerCase().split("_"))
+        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+        .collect(Collectors.joining(" "));
+  }
 }

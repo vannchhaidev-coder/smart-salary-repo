@@ -1,9 +1,8 @@
-package com.vannchhai.smart_salary_api.dto.responses;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
+package com.vannchhai.smart_salary_api.dto.responses.wallet;
 
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor

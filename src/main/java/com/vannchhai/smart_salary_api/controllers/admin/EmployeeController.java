@@ -1,4 +1,4 @@
-package com.vannchhai.smart_salary_api.controllers.employee;
+package com.vannchhai.smart_salary_api.controllers.admin;
 
 import com.vannchhai.smart_salary_api.dto.request.EmployeeRequest;
 import com.vannchhai.smart_salary_api.dto.request.EmployeeUpdateRequest;
@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,7 @@ public class EmployeeController {
   public static final String BASE_PATH = "/api/v1/employees";
   private final EmployeeService employeeService;
 
+  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping
   public PaginationResponse<EmployeeResponse> getEmployees(
       @RequestParam(required = false) String department,
@@ -31,16 +33,19 @@ public class EmployeeController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public EmployeeCreateResponse createEmployee(@Valid @RequestBody EmployeeRequest request) {
     return employeeService.createEmployee(request);
   }
 
   @GetMapping("/{uuid}")
+  @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
   public ResponseEntity<EmployeeResponse> getEmployeeById(@PathVariable UUID uuid) {
     return ResponseEntity.ok(employeeService.getEmployeeId(uuid));
   }
 
   @PutMapping("/{uuid}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<EmployeeUpdateResponse> updateEmployee(
       @PathVariable UUID uuid, @Valid @RequestBody EmployeeUpdateRequest request) {
 
@@ -48,6 +53,7 @@ public class EmployeeController {
   }
 
   @DeleteMapping("/{uuid}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> deleteEmployee(@PathVariable UUID uuid) {
     employeeService.deleteEmployeeByUuid(uuid);
     return ResponseEntity.noContent().build();

@@ -1,8 +1,8 @@
 package com.vannchhai.smart_salary_api.services.Impl;
 
 import com.vannchhai.smart_salary_api.dto.request.WalletTransactionRequest;
-import com.vannchhai.smart_salary_api.dto.responses.WalletBalanceResponse;
-import com.vannchhai.smart_salary_api.dto.responses.WalletResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletBalanceResponse;
+import com.vannchhai.smart_salary_api.dto.responses.wallet.WalletResponse;
 import com.vannchhai.smart_salary_api.enums.LoanStatus;
 import com.vannchhai.smart_salary_api.enums.ReferenceType;
 import com.vannchhai.smart_salary_api.enums.TransactionType;
@@ -96,8 +96,10 @@ public class WalletServiceImpl implements WalletService {
 
   @Override
   public List<WalletResponse> getAllWallets() {
-    return walletRepository.getAllWalletRaw(LoanStatus.ACTIVE).stream()
-            .map(w -> new WalletResponse(
+    return walletRepository.getAllWalletRaw(LoanStatus.REPAYING).stream()
+        .map(
+            w ->
+                new WalletResponse(
                     w.getUuid(),
                     w.getEmployeeId(),
                     w.getName(),
@@ -105,9 +107,8 @@ public class WalletServiceImpl implements WalletService {
                     w.getWalletBalance(),
                     w.getBaseSalary(),
                     w.getDeductions(),
-                    w.getBaseSalary().subtract(w.getDeductions())
-            ))
-            .toList();
+                    w.getBaseSalary().subtract(w.getDeductions())))
+        .toList();
   }
 
   @Override
@@ -118,7 +119,7 @@ public class WalletServiceImpl implements WalletService {
             .orElseThrow(() -> new ResourceNotFoundException("Wallet", "Id", employeeCode));
 
     List<LoanModel> activeLoans =
-        loanRepository.findByEmployeeIdAndStatus(wallet.getEmployee().getId(), LoanStatus.ACTIVE);
+        loanRepository.findByEmployeeIdAndStatus(wallet.getEmployee().getId(), LoanStatus.REPAYING);
 
     return walletMapper.toResponse(wallet, activeLoans, loanMapper);
   }

@@ -9,6 +9,8 @@ import com.vannchhai.smart_salary_api.repositories.DepartmentRepository;
 import com.vannchhai.smart_salary_api.repositories.EmployeeRepository;
 import com.vannchhai.smart_salary_api.repositories.PositionRepository;
 import com.vannchhai.smart_salary_api.repositories.UserRepository;
+import java.util.List;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -27,35 +29,43 @@ public class EmployeeDataLoading implements CommandLineRunner {
   @Override
   public void run(String... args) {
 
-    UserModel admin = userRepository.findByEmail("admin@example.com").orElseThrow();
-    UserModel user = userRepository.findByEmail("user@example.com").orElseThrow();
-    UserModel employee = userRepository.findByEmail("vannchhai-dev@gmail.com").orElseThrow();
+    List<UserModel> users = userRepository.findAll();
+    List<DepartmentModel> departments = departmentRepository.findAll();
+    List<PositionModel> positions = positionRepository.findAll();
+    Random random = new Random();
 
-    DepartmentModel it = departmentRepository.findByName("IT").orElseThrow();
-    DepartmentModel hr = departmentRepository.findByName("HR").orElseThrow();
+    for (UserModel user : users) {
+      if (employeeRepository.existsByUser(user)) {
+        continue;
+      }
 
-    PositionModel engineer = positionRepository.findByTitle("Software Engineer").orElseThrow();
-    PositionModel manager = positionRepository.findByTitle("HR Manager").orElseThrow();
+      DepartmentModel department = departments.get(random.nextInt(departments.size()));
+      PositionModel position = positions.get(random.nextInt(positions.size()));
 
-    createEmployeeIfNotExists(admin, "EMP001", it, engineer);
-    createEmployeeIfNotExists(user, "EMP002", hr, manager);
-    createEmployeeIfNotExists(employee, "EMP003", it, engineer);
+      // Ensure unique employee code
+      String employeeCode = generateUniqueEmployeeCode();
+
+      employeeRepository.save(
+          EmployeeModel.builder()
+              .user(user)
+              .employeeCode(employeeCode)
+              .department(department)
+              .position(position)
+              .badge(Badge.EXCELLENT)
+              .build());
+    }
   }
 
-  private void createEmployeeIfNotExists(
-      UserModel user, String employeeCode, DepartmentModel department, PositionModel position) {
+  private String generateUniqueEmployeeCode() {
+    String prefix = "EMP";
+    String code;
+    Random random = new Random();
 
-    if (employeeRepository.existsByEmployeeCode(employeeCode)) {
-      return;
-    }
+    do {
+      int randomNum = random.nextInt(900) + 100;
+      code = prefix + randomNum;
+    } while (employeeRepository.existsByEmployeeCode(code));
 
-    employeeRepository.save(
-        EmployeeModel.builder()
-            .user(user)
-            .employeeCode(employeeCode)
-            .department(department)
-            .position(position)
-            .badge(Badge.EXCELLENT)
-            .build());
+    return code;
   }
 }

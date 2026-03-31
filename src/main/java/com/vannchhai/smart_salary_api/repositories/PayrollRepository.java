@@ -1,7 +1,10 @@
 package com.vannchhai.smart_salary_api.repositories;
 
+import com.vannchhai.smart_salary_api.models.EmployeeModel;
 import com.vannchhai.smart_salary_api.models.PayrollModel;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +13,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PayrollRepository extends JpaRepository<PayrollModel, Long> {
+
+  Optional<PayrollModel> findTopByEmployeeAndStatusOrderByPayYearDescPayMonthDesc(
+      EmployeeModel employee, String status);
+
+  Optional<PayrollModel> findByUuid(UUID salaryId);
+
+  List<PayrollModel> findByStatus(String status);
 
   boolean existsByEmployeeIdAndPayMonthAndPayYear(
       Long employeeId, Integer payMonth, Integer payYear);

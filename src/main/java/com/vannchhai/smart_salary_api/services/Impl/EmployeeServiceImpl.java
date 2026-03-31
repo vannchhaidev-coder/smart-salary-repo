@@ -109,7 +109,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 () -> new ResourceNotFoundException("Position", "title", request.getPosition()));
     employee.setPosition(position);
 
-    long shortTime = System.currentTimeMillis() % 1_000_000;
+    long shortTime = System.currentTimeMillis() % 1_000;
     employee.setEmployeeCode("EMP" + shortTime);
 
     EmployeeModel savedEmployee = employeeRepository.save(employee);

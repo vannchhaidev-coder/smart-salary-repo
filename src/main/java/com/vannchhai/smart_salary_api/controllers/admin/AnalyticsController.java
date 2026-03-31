@@ -1,4 +1,4 @@
-package com.vannchhai.smart_salary_api.controllers;
+package com.vannchhai.smart_salary_api.controllers.admin;
 
 import com.vannchhai.smart_salary_api.dto.analytics.LoanAnalyticsFilter;
 import com.vannchhai.smart_salary_api.dto.analytics.LoanAnalyticsResponse;

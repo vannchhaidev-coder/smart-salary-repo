@@ -2,9 +2,6 @@ package com.vannchhai.smart_salary_api.dto.responses.loans;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-
-import com.vannchhai.smart_salary_api.enums.LoanStatus;
-import com.vannchhai.smart_salary_api.services.LoanService;
 import lombok.*;
 
 @Getter
@@ -26,7 +23,7 @@ public class LoanResponse {
 
   private String requestDate;
 
-  private LoanStatus status;
+  private String status;
 
   private Integer riskScore;
 
