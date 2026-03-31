@@ -122,8 +122,7 @@ public class SecurityConfig {
     config.setAllowedOrigins(
         List.of(
             "http://localhost:3000",
-            "https://vercel.com/vannchhai123s-projects/general-affair-app",
-            "https://general-affair-app.vercel.app"));
+            "https://smart-salary-app.vercel.app/"));
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setExposedHeaders(List.of("Authorization"));
