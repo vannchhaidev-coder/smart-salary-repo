@@ -11,13 +11,14 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       idle-timeout: 30000
-      max-lifetime: 2000000
+      max-lifetime: 1800000
       connection-timeout: 30000
 
   jpa:
     hibernate:
       ddl-auto: create
     show-sql: false
+    open-in-view: false
     properties:
       hibernate:
         format_sql: false
@@ -26,12 +27,16 @@ spring:
   sql:
     init:
       mode: never
+
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: 86400000
-  refresh-expiration: 604800000
+  private-key: ${JWT_PRIVATE_KEY}
+  public-key: ${JWT_PUBLIC_KEY}
+
+  expiration: ${JWT_EXPIRATION:86400000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
 logging:
   level:
     root: INFO
     org.springframework.web: INFO
+    org.hibernate.SQL: WARN
