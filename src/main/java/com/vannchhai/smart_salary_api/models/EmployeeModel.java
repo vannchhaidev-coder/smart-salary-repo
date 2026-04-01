@@ -3,6 +3,9 @@ package com.vannchhai.smart_salary_api.models;
 import com.vannchhai.smart_salary_api.enums.Badge;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -36,6 +39,9 @@ public class EmployeeModel extends BaseIdModel {
 
   @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
   private WalletModel wallet;
+
+  @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<SalaryModel> salaries = new ArrayList<>();
 
   @Builder.Default
   @Enumerated(EnumType.STRING)

@@ -23,7 +23,7 @@ public class SalaryModel extends BaseIdModel {
   @Column(nullable = false, unique = true, updatable = false)
   private UUID uuid;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "employee_id", nullable = false)
   private EmployeeModel employee;
 
