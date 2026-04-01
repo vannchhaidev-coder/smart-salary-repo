@@ -3,7 +3,6 @@ package com.vannchhai.smart_salary_api.models;
 import com.vannchhai.smart_salary_api.enums.Badge;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
