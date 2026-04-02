@@ -31,6 +31,8 @@ public interface LoanRepository extends JpaRepository<LoanModel, UUID> {
 
   Optional<LoanModel> findByEmployeeId(Long employeeId);
 
+  long countByEmployeeAndStatus(EmployeeModel employee, String status);
+
   List<LoanModel> findByEmployeeIdAndStatus(Long employeeId, LoanStatus status);
 
   List<LoanModel> findByEmployeeIdAndStatusIn(Long employeeId, List<LoanStatus> statuses);

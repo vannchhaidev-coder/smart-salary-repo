@@ -18,9 +18,7 @@ import com.vannchhai.smart_salary_api.repositories.EmployeeRepository;
 import com.vannchhai.smart_salary_api.repositories.LoanRepository;
 import com.vannchhai.smart_salary_api.repositories.WalletTransactionRepository;
 import com.vannchhai.smart_salary_api.security.SecurityUtil;
-import com.vannchhai.smart_salary_api.services.LoanRiskService;
-import com.vannchhai.smart_salary_api.services.LoanService;
-import com.vannchhai.smart_salary_api.services.WalletService;
+import com.vannchhai.smart_salary_api.services.*;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -46,6 +44,7 @@ public class LoanServiceImpl implements LoanService {
   private final WalletService walletService;
   private final LoanRiskService loanRiskService;
   private final SecurityUtil securityUtil;
+  private final EmployeeDashboardService dashboardService;
 
   @Override
   public PaginationResponse<LoanResponse> listLoans(PaginationDto pagination) {
@@ -79,7 +78,17 @@ public class LoanServiceImpl implements LoanService {
 
     Page<LoanModel> loanPage = loanRepository.findByEmployee(employee, pageable);
 
-    List<EmployeeLoanResponse> loans = loanMapper.toEmployeeDtoList(loanPage.getContent());
+    List<EmployeeLoanResponse> loans =
+        loanPage.getContent().stream()
+            .map(
+                loan -> {
+                  EmployeeLoanResponse res = loanMapper.toResponseEmployeeList(loan);
+
+                  res.setRiskScore(dashboardService.getRiskScore(loan.getEmployee()));
+
+                  return res;
+                })
+            .toList();
 
     PaginationDto paginationDto = new PaginationDto();
     paginationDto.setPage(loanPage.getNumber());
