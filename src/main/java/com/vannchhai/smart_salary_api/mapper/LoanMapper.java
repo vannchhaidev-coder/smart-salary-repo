@@ -8,7 +8,6 @@ import com.vannchhai.smart_salary_api.models.EmployeeModel;
 import com.vannchhai.smart_salary_api.models.LoanModel;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -34,7 +33,7 @@ public interface LoanMapper {
   @Mapping(target = "repaymentMonths", expression = "java(getMonths(loan))")
   @Mapping(target = "monthlyDeduction", expression = "java(calculateMonthly(loan))")
   @Mapping(target = "remainingBalance", source = "remainingBalance")
-  @Mapping(target = "riskScore", source = "riskScore")
+  @Mapping(target = "riskScore", ignore = true)
   @Mapping(target = "riskLevel", source = "riskLevel")
   LoanResponse toResponse(LoanModel loan);
 
@@ -50,8 +49,6 @@ public interface LoanMapper {
       expression = "java(LocalDate.now().plusMonths(request.getRepaymentMonths()))")
   @Mapping(target = "interestRate", constant = "5.0")
   LoanModel toEntity(LoanRequest request, EmployeeModel employee);
-
-  List<EmployeeLoanResponse> toEmployeeDtoList(List<LoanModel> loans);
 
   @Mapping(target = "uuid", source = "uuid")
   @Mapping(
