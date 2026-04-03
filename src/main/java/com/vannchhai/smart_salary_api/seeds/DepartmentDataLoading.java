@@ -4,13 +4,14 @@ import com.vannchhai.smart_salary_api.models.DepartmentModel;
 import com.vannchhai.smart_salary_api.repositories.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Order(3)
-// @Profile("dev")
+@Profile("dev")
 public class DepartmentDataLoading implements CommandLineRunner {
 
   private final DepartmentRepository departmentRepository;

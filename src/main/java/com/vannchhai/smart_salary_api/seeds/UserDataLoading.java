@@ -7,6 +7,7 @@ import com.vannchhai.smart_salary_api.repositories.UserRepository;
 import com.vannchhai.smart_salary_api.repositories.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Order(2)
-// @Profile("dev")
+@Profile("dev")
 public class UserDataLoading implements CommandLineRunner {
 
   private final UserRepository userRepository;
