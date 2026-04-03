@@ -33,7 +33,7 @@ public interface LoanMapper {
   @Mapping(target = "repaymentMonths", expression = "java(getMonths(loan))")
   @Mapping(target = "monthlyDeduction", expression = "java(calculateMonthly(loan))")
   @Mapping(target = "remainingBalance", source = "remainingBalance")
-  @Mapping(target = "riskScore", ignore = true)
+  @Mapping(target = "riskScore", source = "riskScore")
   @Mapping(target = "riskLevel", source = "riskLevel")
   LoanResponse toResponse(LoanModel loan);
 

@@ -47,9 +47,10 @@ public class LoanRiskServiceImpl implements LoanRiskService {
     int totalDays = attendanceService.countWorkingDaysThisMonth();
     int presentDays = attendanceService.countPresentDaysThisMonth(employeeId);
 
-    if (totalDays == 0) {
-      return 50;
-    }
+    System.out.println("Score totalDays: attendance=" + totalDays);
+    System.out.println("Score presentDays: attendance=" + presentDays);
+    if (totalDays == 0) return 50;
+    if (presentDays == 0) return 70;
 
     double rate = (double) presentDays / totalDays;
 
@@ -64,7 +65,7 @@ public class LoanRiskServiceImpl implements LoanRiskService {
     if (pastLoans.isEmpty()) return 70;
 
     long onTime = pastLoans.stream().filter(l -> !l.isLate()).count();
-
+    System.out.println("Completed loans: " + loanService.getCompletedLoans(employeeId));
     return (int) (((double) onTime / pastLoans.size()) * 100);
   }
 
@@ -82,6 +83,8 @@ public class LoanRiskServiceImpl implements LoanRiskService {
     UUID employeeId = loan.getEmployee().getUuid();
 
     BigDecimal totalDebt = loanService.getTotalActiveDebt(employeeId);
+
+    totalDebt = totalDebt.add(loan.getAmount());
     BigDecimal salary = payrollService.getLatestSalary(employeeId);
 
     if (salary.compareTo(BigDecimal.ZERO) == 0) return 50;

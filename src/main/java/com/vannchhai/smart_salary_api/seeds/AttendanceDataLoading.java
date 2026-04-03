@@ -7,17 +7,15 @@ import com.vannchhai.smart_salary_api.repositories.EmployeeRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Order(8)
-@Profile("dev")
+// @Profile("dev")
 public class AttendanceDataLoading implements CommandLineRunner {
 
   private final AttendanceRepository attendanceRepository;
@@ -26,19 +24,19 @@ public class AttendanceDataLoading implements CommandLineRunner {
   @Override
   public void run(String... args) {
 
-    List<EmployeeModel> employees = employeeRepository.findAll();
+    // Fetch only the employee "Vann Chhai" by email
+    EmployeeModel employee =
+        employeeRepository.findByUser_Email("vannchhai-dev@gmail.com").orElse(null);
 
-    if (employees.isEmpty()) {
-      System.out.println("No employees found, skipping attendance seeding.");
+    if (employee == null) {
+      System.out.println("Employee Vann Chhai not found, skipping attendance seeding.");
       return;
     }
 
     LocalDate startDate = LocalDate.of(2026, 3, 1);
     LocalDate endDate = LocalDate.of(2026, 3, 31);
 
-    for (EmployeeModel employee : employees) {
-      generateAttendanceForEmployee(employee, startDate, endDate);
-    }
+    generateAttendanceForEmployee(employee, startDate, endDate);
   }
 
   private void generateAttendanceForEmployee(
@@ -47,7 +45,7 @@ public class AttendanceDataLoading implements CommandLineRunner {
     LocalDate currentDate = startDate;
 
     while (!currentDate.isAfter(endDate)) {
-
+      // Only weekdays (Monday=1 to Friday=5)
       if (currentDate.getDayOfWeek().getValue() <= 5) {
         createAttendanceIfNotExists(employee, currentDate, 9, 17);
       }

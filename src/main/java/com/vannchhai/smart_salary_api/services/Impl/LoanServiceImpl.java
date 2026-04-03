@@ -53,17 +53,7 @@ public class LoanServiceImpl implements LoanService {
             pagination.getPage(), pagination.getSize(), Sort.by(Sort.Direction.DESC, "id"));
 
     Page<LoanModel> loanPage = loanRepository.findAll(pageable);
-    List<LoanResponse> data =
-        loanPage.getContent().stream()
-            .map(
-                loan -> {
-                  LoanResponse response = loanMapper.toResponse(loan);
-
-                  response.setRiskScore(dashboardService.getRiskScore(loan.getEmployee()));
-
-                  return response;
-                })
-            .toList();
+    List<LoanResponse> data = loanPage.getContent().stream().map(loanMapper::toResponse).toList();
 
     pagination.setTotal(loanPage.getTotalElements());
     pagination.setTotalPages(loanPage.getTotalPages());
@@ -121,12 +111,12 @@ public class LoanServiceImpl implements LoanService {
 
     LoanModel loan = loanMapper.toEntity(request, employee);
     loan.setRemainingBalance(loan.getAmount());
-    loan = loanRepository.save(loan);
 
     int riskScore = loanRiskService.calculateRiskScore(loan);
-    loan.setRiskScore(riskScore);
-    loan.setRiskLevel(loanRiskService.getRiskLevel(riskScore));
+    String riskLevel = loanRiskService.getRiskLevel(riskScore);
 
+    loan.setRiskScore(riskScore);
+    loan.setRiskLevel(riskLevel);
     loan = loanRepository.save(loan);
 
     return loanMapper.toResponse(loan);

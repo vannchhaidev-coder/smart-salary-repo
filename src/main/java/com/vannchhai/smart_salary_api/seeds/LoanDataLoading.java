@@ -12,16 +12,16 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Order(12)
-@Profile("dev")
+// @Profile("dev")
 public class LoanDataLoading implements CommandLineRunner {
 
   private final EmployeeRepository employeeRepository;
@@ -31,7 +31,16 @@ public class LoanDataLoading implements CommandLineRunner {
   @Override
   public void run(String... args) {
 
-    List<EmployeeModel> employees = employeeRepository.findAll();
+    Set<String> excludedEmails =
+        Set.of(
+            //            "vannchhai-dev@gmail.com",
+            "admin@example.com");
+
+    List<EmployeeModel> employees =
+        employeeRepository.findAll().stream()
+            .filter(emp -> !excludedEmails.contains(emp.getUser().getEmail()))
+            .toList();
+
     Random random = new Random();
 
     // Define months for 2026
@@ -92,14 +101,17 @@ public class LoanDataLoading implements CommandLineRunner {
 
         loanRepository.save(loan);
 
+        // Add loan payments for approved/repaying/completed loans
         if (status == LoanStatus.APPROVED
             || status == LoanStatus.REPAYING
             || status == LoanStatus.COMPLETED) {
+
           int paymentCount = 2 + random.nextInt(3); // 2–4 payments
           for (int j = 0; j < paymentCount; j++) {
             LocalDate paymentDate = startDate.plusDays(15L * (j + 1));
             BigDecimal paymentAmount =
                 amount.divide(BigDecimal.valueOf(paymentCount), 2, RoundingMode.HALF_UP);
+
             paymentRepository.save(
                 LoanPaymentModel.builder()
                     .loan(loan)

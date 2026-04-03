@@ -5,14 +5,13 @@ import com.vannchhai.smart_salary_api.repositories.PositionRepository;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Order(4)
-@Profile("dev")
+// @Profile("dev")
 public class PositionDataLoading implements CommandLineRunner {
 
   private final PositionRepository positionRepository;
