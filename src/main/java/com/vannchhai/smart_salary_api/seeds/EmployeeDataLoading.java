@@ -13,14 +13,13 @@ import java.util.List;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Order(5)
-@Profile("dev")
+// @Profile("dev")
 public class EmployeeDataLoading implements CommandLineRunner {
 
   private final EmployeeRepository employeeRepository;

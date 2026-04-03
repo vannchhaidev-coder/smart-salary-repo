@@ -9,14 +9,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Order(8)
-@Profile("dev")
+// @Profile("dev")
 public class AttendanceDataLoading implements CommandLineRunner {
 
   private final AttendanceRepository attendanceRepository;
