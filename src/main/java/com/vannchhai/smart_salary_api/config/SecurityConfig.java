@@ -120,7 +120,7 @@ public class SecurityConfig {
     CorsConfiguration config = new CorsConfiguration();
 
     config.setAllowedOrigins(
-        List.of("http://localhost:3000", "https://smart-salary-app.vercel.app/"));
+        List.of("http://localhost:3000", "https://smart-salary-app.vercel.app"));
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setExposedHeaders(List.of("Authorization"));
